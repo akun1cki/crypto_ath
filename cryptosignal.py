@@ -13,11 +13,14 @@ class CryptoSignal:
 		ath = data.max(axis=0)
 		idx = data.idxmax(axis=0)
 		date = pd.to_datetime(idx*1000000)
+		today = datetime.datetime.today()
+		delta = today - date
 		
 		print(ath)
 		print(idx)
 		print(date)
-		return ath, date
+		print(delta)
+		return ath, date, delta
 
 
 	def get_data(self, exchange, ticker):
