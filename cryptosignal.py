@@ -1,6 +1,11 @@
 import ccxt
+import csv
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 import pandas as pd
-import numpy as np
+import smtplib
+from tabulate import tabulate
+
 
 TICKERS = []
 
