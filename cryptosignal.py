@@ -42,3 +42,45 @@ class CryptoSignal:
 		df.name = ticker + '_' + exchange.id + '_' + interval
 		df.set_index(0, inplace=True)
 		return df
+
+
+	@staticmethod
+    def send_email(file_path = 'email_signal.csv'):
+        me = 'jacek.dzarnecki@gmail.com'
+        password = 'Jacek11@@'
+        server = 'smtp.gmail.com:587'
+        you = 'salexo44@gmail.com'
+
+        text = """
+        List of cryptocurrencies, which are close to all time highs:
+
+        {table}
+
+        Regards."""
+
+        html = """
+        <html><body><p>List of cryptocurrencies, which are close to all time highs:</p>
+        {table}
+        <p>Regards.</p>
+        </body></html>
+        """
+
+        with open(file_path) as input_file:
+            reader = csv.reader(input_file)
+            data = list(reader)
+
+        text = text.format(table=tabulate(data, headers="firstrow", tablefmt="grid"))
+        html = html.format(table=tabulate(data, headers="firstrow", tablefmt="html"))
+
+        message = MIMEMultipart(
+            "alternative", None, [MIMEText(text), MIMEText(html, 'html')])
+
+        message['Subject'] = "Your data"
+        message['From'] = me
+        message['To'] = you
+        server = smtplib.SMTP(server)
+        server.ehlo()
+        server.starttls()
+        server.login(me, password)
+        server.sendmail(me, you, message.as_string())
+        server.quit()
