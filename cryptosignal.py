@@ -34,14 +34,13 @@ class CryptoSignal:
 		return ath, date, delta
 
 
-	def get_data(self, exchange, ticker):
-		exchange = getattr(ccxt, exchange)({'enableRateLimit': True})
+	def get_data(self, ticker):
 		data = []
 		count = 0
 		since = 0
 		interval = '1d'
 		while True:
-			d2 = exchange.fetch_ohlcv(ticker, interval, since)
+			d2 = self.exchange.fetch_ohlcv(ticker, interval, since)
 			data += d2
 			count += 1
 			if len(d2) <= 1:
