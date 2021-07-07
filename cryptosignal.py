@@ -19,8 +19,8 @@ class CryptoSignal:
 		exchange_name = input('Enter exchange name:')
 		self.exchange = getattr(ccxt, exchange_name)({'enableRateLimit': True})
 
-	def find_ath(self, exchange, ticker):
-		data = self.get_data(exchange, ticker)[2]
+	def find_ath(self, ticker):
+		data = self.get_data(ticker)[2]
 		ath = data.max(axis=0)
 		idx = data.idxmax(axis=0)
 		date = pd.to_datetime(idx*1000000)
