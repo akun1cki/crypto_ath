@@ -6,6 +6,7 @@ import pandas as pd
 import smtplib
 from tabulate import tabulate
 import yagmail
+import time
 
 
 TICKERS = []
