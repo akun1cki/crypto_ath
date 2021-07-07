@@ -5,6 +5,7 @@ from email.mime.text import MIMEText
 import pandas as pd
 import smtplib
 from tabulate import tabulate
+import yagmail
 
 
 TICKERS = []
