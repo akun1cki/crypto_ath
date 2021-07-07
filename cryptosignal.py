@@ -12,6 +12,10 @@ TICKERS = []
 class CryptoSignal:
 	def __init__(self)
 		pass
+	
+	def set_exchange(self):
+		exchange_name = input('Enter exchange name:')
+		self.exchange = getattr(ccxt, exchange_name)({'enableRateLimit': True})
 
 	def find_ath(self, exchange, ticker):
 		data = self.get_data(exchange, ticker)[2]
@@ -89,3 +93,44 @@ class CryptoSignal:
 		server.login(me, password)
 		server.sendmail(me, you, message.as_string())
 		server.quit()
+		
+		
+	def monitor_ticker(self, ticker, sleep_time=120):
+		ath, ath_timestamp, ath_date, delta = self.find_ath(ticker)
+		while True:
+			data = self.exchange.fetch_ticker(ticker)
+			if data['bid'] > ath and data['timestamp'] - ath_timestamp > 86400000:
+				self.send_email2({'ticker': ticker, 'price': data['bid'], 'ath': ath, 'ath_date': ath_date})
+				break
+			else:
+				time.sleep(sleep_time)
+				
+	def send_email2(self, data):
+		today = datetime.datetime.today()
+		msg = f"""
+		Ticker: {data['ticker']}
+		Current price: {data['price']}
+		Previous ATH: {data['ath']}
+		Previous ATH date: {data['ath_date']}
+		Todays date: {str(today)[:-7]}
+		"""
+
+		subject = f"New high on {data['ticker']}: {data['price']}"
+		for recipient in self.config['Recipients']:
+			self.server.send(to=recipient, subject=subject, contents=msg)
+			print(f'msg sent to {recipient}')
+
+
+	def register_email(self):
+		user = input('Email:')
+		password = input('Password:')
+		yagmail.register(user, password)
+
+	def add_recipient(self, email):
+		with open('config.cfg', 'r+') as config:
+			self.config = json.load(config)
+			self.config['Recipients'].append(email)
+			js = json.dumps(self.config)
+			config.seek(0)
+			config.write(js)
+			config.truncate()
