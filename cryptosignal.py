@@ -31,7 +31,7 @@ class CryptoSignal:
 		print(idx)
 		print(date)
 		print(delta)
-		return ath, date, delta
+		return ath, idx, date, delta
 
 
 	def get_data(self, ticker):
