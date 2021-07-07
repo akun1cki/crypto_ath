@@ -27,10 +27,6 @@ class CryptoSignal:
 		today = datetime.datetime.today()
 		delta = today - date
 		
-		print(ath)
-		print(idx)
-		print(date)
-		print(delta)
 		return ath, idx, date, delta
 
 
