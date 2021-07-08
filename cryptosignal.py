@@ -52,8 +52,8 @@ class CryptoSignal:
 
 	@staticmethod
 	def send_email(file_path = 'email_signal.csv'):
-		me = 'jacek.dzarnecki@gmail.com'
-		password = 'Jacek11@@'
+		me = ''
+		password = ''
 		server = 'smtp.gmail.com:587'
 		you = 'salexo44@gmail.com'
 
