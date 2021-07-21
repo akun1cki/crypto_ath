@@ -92,7 +92,7 @@ class CryptoSignal:
 		server.quit()
 		
 		
-	def monitor_ticker(self, ticker, sleep_time=120):
+	def monitor_ticker(self, ticker, sleep_time=1800):
 		ath, ath_timestamp, ath_date, delta = self.find_ath(ticker)
 		while True:
 			data = self.exchange.fetch_ticker(ticker)
