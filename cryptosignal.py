@@ -87,7 +87,7 @@ class CryptoSignal:
 		server.quit()
 		
 		
-	def monitor_ticker(self, ticker, pct_of_ath, sleep_time=1800):
+	def monitor_ticker(self, ticker, pct_of_ath=0.93, sleep_time=1800):
 		ath, ath_date = self.find_ath(ticker)
 		while True:
 			data = self.exchange.fetch_ticker(ticker)
