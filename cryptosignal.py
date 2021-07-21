@@ -21,12 +21,9 @@ class CryptoSignal:
 	def find_ath(self, ticker):
 		data = self.get_data(ticker)[2]
 		ath = data.max(axis=0)
-		idx = data.idxmax(axis=0)
-		date = pd.to_datetime(idx*1000000)
-		today = datetime.datetime.today()
-		delta = today - date
+		date = data.idxmax(axis=0)
 		
-		return ath, idx, date, delta
+		return ath, date
 
 
 	def get_data(self, ticker):
@@ -92,7 +89,7 @@ class CryptoSignal:
 		
 		
 	def monitor_ticker(self, ticker, pct_of_ath, sleep_time=1800):
-		ath, ath_timestamp, ath_date, delta = self.find_ath(ticker)
+		ath, ath_date = self.find_ath(ticker)
 		while True:
 			data = self.exchange.fetch_ticker(ticker)
 			if data['bid'] > pct_of_ath * ath and data['timestamp'] - ath_timestamp > 864000000:
