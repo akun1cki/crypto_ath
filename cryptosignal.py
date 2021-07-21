@@ -96,7 +96,7 @@ class CryptoSignal:
 		ath, ath_timestamp, ath_date, delta = self.find_ath(ticker)
 		while True:
 			data = self.exchange.fetch_ticker(ticker)
-			if data['bid'] > ath and data['timestamp'] - ath_timestamp > 86400000:
+			if data['bid'] > ath and data['timestamp'] - ath_timestamp > 864000000:
 				self.send_email2({'ticker': ticker, 'price': data['bid'], 'ath': ath, 'ath_date': ath_date})
 				break
 			else:
