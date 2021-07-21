@@ -22,7 +22,6 @@ class CryptoSignal:
 		data = self.get_data(ticker)[2]
 		ath = data.max(axis=0)
 		date = data.idxmax(axis=0)
-		
 		return ath, date
 
 
