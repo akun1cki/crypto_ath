@@ -91,11 +91,11 @@ class CryptoSignal:
 		server.quit()
 		
 		
-	def monitor_ticker(self, ticker, sleep_time=1800):
+	def monitor_ticker(self, ticker, pct_of_ath, sleep_time=1800):
 		ath, ath_timestamp, ath_date, delta = self.find_ath(ticker)
 		while True:
 			data = self.exchange.fetch_ticker(ticker)
-			if data['bid'] > ath and data['timestamp'] - ath_timestamp > 864000000:
+			if data['bid'] > pct_of_ath * ath and data['timestamp'] - ath_timestamp > 864000000:
 				self.send_email2({'ticker': ticker, 'price': data['bid'], 'ath': ath, 'ath_date': ath_date})
 				break
 			else:
