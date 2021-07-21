@@ -89,6 +89,9 @@ class CryptoSignal:
 		
 	def monitor_ticker(self, ticker, pct_of_ath=0.93, sleep_time=1800):
 		ath, ath_date = self.find_ath(ticker)
+		file = pd.read_csv('email_signal.csv', index_col=0)
+		file.loc[ticker] = [ath, ath_date]
+		
 		while True:
 			data = self.exchange.fetch_ticker(ticker)
 			if data['bid'] > pct_of_ath * ath and data['timestamp'] - ath_date > 864000000:
