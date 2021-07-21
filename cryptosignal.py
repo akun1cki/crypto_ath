@@ -91,6 +91,7 @@ class CryptoSignal:
 		ath, ath_date = self.find_ath(ticker)
 		file = pd.read_csv('email_signal.csv', index_col=0)
 		file.loc[ticker] = [ath, ath_date]
+		file.to_csv('email_signal.csv')
 		
 		while True:
 			data = self.exchange.fetch_ticker(ticker)
