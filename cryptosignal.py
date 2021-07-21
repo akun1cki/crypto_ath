@@ -9,11 +9,10 @@ import yagmail
 import time
 
 
-TICKERS = []
 
 class CryptoSignal:
 	def __init__(self)
-		pass
+		self.tickers = []
 	
 	def set_exchange(self):
 		exchange_name = input('Enter exchange name:')
@@ -131,3 +130,13 @@ class CryptoSignal:
 			config.seek(0)
 			config.write(js)
 			config.truncate()
+			
+	def add_ticker(self):
+		ticker = input('Ticker to add:')
+		self.tickers.append(ticker.upper())
+		
+	def remove_ticker(self):
+		ticker = input('Ticker to remove:')
+		self.tickers.remove(ticker.upper())
+		
+	
