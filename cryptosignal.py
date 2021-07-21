@@ -11,12 +11,18 @@ import time
 
 
 class CryptoSignal:
-	def __init__(self)
-		self.tickers = []
+	def __init__(self, exchange, tickers, email, password, recipients, pct_of_ath, sleep_time):
+		self.config = {}
+		self.load_config()
+		self.exchange = getattr(ccxt, self.config['exchange'])({'enableRateLimit': True})
+		self.tickers = tickers
+		yagmail.register(user, password)
 	
-	def set_exchange(self):
-		exchange_name = input('Enter exchange name:')
-		self.exchange = getattr(ccxt, exchange_name)({'enableRateLimit': True})
+	
+	def load_config(self):
+		with open('config.cfg', 'r') as config:
+			self.config = json.load(config)
+
 
 	def find_ath(self, ticker):
 		data = self.get_data(ticker)[2]
@@ -117,10 +123,6 @@ class CryptoSignal:
 			print(f'msg sent to {recipient}')
 
 
-	def register_email(self):
-		user = input('Email:')
-		password = input('Password:')
-		yagmail.register(user, password)
 
 	def add_recipient(self, email):
 		with open('config.cfg', 'r+') as config:
