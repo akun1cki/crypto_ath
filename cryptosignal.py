@@ -91,8 +91,8 @@ class CryptoSignal:
 		ath, ath_date = self.find_ath(ticker)
 		while True:
 			data = self.exchange.fetch_ticker(ticker)
-			if data['bid'] > pct_of_ath * ath and data['timestamp'] - ath_timestamp > 864000000:
-				self.send_email2({'ticker': ticker, 'price': data['bid'], 'ath': ath, 'ath_date': ath_date})
+			if data['bid'] > pct_of_ath * ath and data['timestamp'] - ath_date > 864000000:
+				self.send_email2({'ticker': ticker, 'price': data['bid'], 'ath': ath, 'ath_date': pd.to_datetime(ath_date*1000000)})
 				break
 			else:
 				time.sleep(sleep_time)
