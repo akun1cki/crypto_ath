@@ -1,0 +1,7 @@
+exchange: binance
+tickers: [BTC/USDT, ETH/USDT, ADA/USDT, DOT/USDT]
+email: salexo44@gmail.com
+recipients: [szajzor@gmail.com, salexo44@gmail.com]
+sleep_time: 1800
+pct_of_ath: 0.93
+reset_peroid: 864000000
