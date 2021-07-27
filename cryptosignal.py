@@ -7,21 +7,23 @@ import smtplib
 from tabulate import tabulate
 import yagmail
 import time
-
+import yaml
 
 
 class CryptoSignal:
-	def __init__(self, email, password, recipients, pct_of_ath, sleep_time):
-		self.config = {}
+	def __init__(self, password):
+		self.config = None
 		self.load_config()
 		self.exchange = getattr(ccxt, self.config['exchange'])({'enableRateLimit': True})
-		self.tickers = tickers
-		yagmail.register(email, password)
+
+		yagmail.register(self.config['email'], password)
+		
+		self.monitor_tickers():
 	
 	
 	def load_config(self):
-		with open('config.cfg', 'r') as config:
-			self.config = json.load(config)
+		with open('config.yaml', 'r') as config:
+			self.config = yaml.safe_load(config)
 
 
 	def find_ath(self, ticker):
@@ -93,52 +95,63 @@ class CryptoSignal:
 		server.quit()
 		
 		
-	def monitor_ticker(self, ticker, pct_of_ath=0.93, sleep_time=1800):
-		ath, ath_date = self.find_ath(ticker)
-		file = pd.read_csv('email_signal.csv', index_col=0)
-		file.loc[ticker] = [ath, ath_date]
-		file.to_csv('email_signal.csv')
+	def monitor_tickers(self, tickers=self.config['tickers'], pct_of_ath=self.config['pct_of_ath'], sleep_time=self.config['sleep_time'],
+						reset_peroid=self.config['reset_peroid']):
+		ath_data = {}
+		email_history = pd.read_csv('email_signal.csv', index_col=0)
+		email_historycolumns='timestamp ticker price prev_ath prev_ath_date delta'.split()
 		
+		for ticker in tickers:
+			last_msg_timestamp = max(email_history[email_history['symbol'] == ticker]['symbol']) if ticker in email_history['symbol'] else 0
+			ath, ath_date = self.find_ath(ticker)
+			ath_data[ticker] = {'ath': ath, 'ath_date': max(last_msg_timestamp, ath_date)}
+
 		while True:
-			data = self.exchange.fetch_ticker(ticker)
-			if data['bid'] > pct_of_ath * ath and data['timestamp'] - ath_date > 864000000:
-				self.send_email2({'ticker': ticker, 'price': data['bid'], 'ath': ath, 'ath_date': pd.to_datetime(ath_date*1000000)})
-				break
-			else:
-				time.sleep(sleep_time)
+			to_send = []
+			data = pd.DataFrame(self.exchange.fetch_tickers(tickers)).transpose()[['symbol', 'timestamp', 'last']]
+			for ticker in tickers:
+				if self.close_to_ath(ath_data[ticker]['ath'], data.loc[ticker, 'last'], pct_of_ath) and self.check_dates(data.loc[ticker, 'timestamp'],
+																														 ath_data[ticker]['ath_date'], reset_peroid):
+					to_send.append({'ticker': ticker, 'price': data.loc[ticker, 'last'], 'ath': ath_data[ticker]['ath'], 'ath_date': ath_data[ticker]['ath_date'],
+									'delta': data.loc[ticker, 'timestamp'] - ath_data[ticker]['ath_date']})
 				
-	def send_email2(self, data):
+			if to_send:
+				email_history.loc[len(email_history)] = [data.loc[ticker, 'timestamp'], ticker, data.loc[ticker, 'last'], ath_data[ticker]['ath'],
+														 ath_data[ticker]['ath_date']]
+				email_history.to_csv('email_signal.csv', index=False)
+				self.send_emails(to_send)
+				
+			time.sleep(sleep_time)
+	
+	@staticmethod
+	def close_to_ath(ath, current_price, pct_of_ath):
+		return current_price >= ath * pct_of_ath
+	
+	@staticmethod
+	def check_dates(current_timestamp, last_msg_timestamp, reset_peroid):
+		return current_timestamp - last_msg_timestamp > reset_peroid
+	
+	@staticmethod
+	def miliseconds_to_days(time_in_ms):
+		return time_in_ms/86_400_000
+				
+	def send_emails(self, data):
 		today = datetime.datetime.today()
-		msg = f"""
-		Ticker: {data['ticker']}
-		Current price: {data['price']}
-		Previous ATH: {data['ath']}
-		Previous ATH date: {data['ath_date']}
-		Todays date: {str(today)[:-7]}
-		"""
-
-		subject = f"New high on {data['ticker']}: {data['price']}"
-		for recipient in self.config['Recipients']:
-			self.server.send(to=recipient, subject=subject, contents=msg)
-			print(f'msg sent to {recipient}')
-
-
-
-	def add_recipient(self, email):
-		with open('config.cfg', 'r+') as config:
-			self.config = json.load(config)
-			self.config['Recipients'].append(email)
-			js = json.dumps(self.config)
-			config.seek(0)
-			config.write(js)
-			config.truncate()
+		for item in data:
+			msg = f"""
+			Ticker: {item['ticker']}.
+			Current price: {item['price']}.
+			Previous ATH: {item['ath']}.
+			Previous ATH date: {item['ath_date']} - {item['delta']} days ago.
+			Todays date: {str(today)[:-7]}.
+			"""
+			subject = f"New high on {item}: {item['price']}"
 			
-	def add_ticker(self):
-		ticker = input('Ticker to add:')
-		self.tickers.append(ticker.upper())
-		
-	def remove_ticker(self):
-		ticker = input('Ticker to remove:')
-		self.tickers.remove(ticker.upper())
-		
+			for recipient in self.config['recipients']:
+				self.server.send(to=recipient, subject=subject, contents=msg)
+				print(f'msg sent to {recipient}')
+
+
+
+
 	
