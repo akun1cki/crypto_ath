@@ -1,5 +1,4 @@
 import ccxt
-import csv
 import pandas as pd
 import yagmail
 import time
@@ -29,13 +28,11 @@ class CryptoSignal:
 
     def get_data(self, ticker):
         data = []
-        count = 0
         since = 0
         interval = '1d'
         while True:
             d2 = self.exchange.fetch_ohlcv(ticker, interval, since)
             data += d2
-            count += 1
             if len(d2) <= 1:
                 break
             else:
@@ -146,7 +143,8 @@ class CryptoSignal:
                     Ticker: {item['symbol']}.
                     Current price: {item['price']}.
                     Previous ATH: {item['ath']}.
-                    Previous ATH date: {item['ath_date']} - {item['delta']} days ago.
+                    Previous ATH date: {ccxt.Exchange.iso8601(item['ath_date'])[:10]} --*
+                                       {self.miliseconds_to_days(item['delta'])} days ago.
                     Todays date: {str(today)[:-7]}.
                     """
 
