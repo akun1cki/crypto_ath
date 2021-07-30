@@ -18,7 +18,7 @@ class CryptoSignal:
 
 		yagmail.register(self.config['email'], password)
 		
-		self.monitor_tickers():
+		self.monitor_tickers()
 	
 	
 	def load_config(self):
