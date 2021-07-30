@@ -138,7 +138,7 @@ class CryptoSignal:
         yag = yagmail.SMTP(self.config['email'])
         today = datetime.datetime.today()
         for item in data:
-            subject = f"New high on {item}: {item['price']}"
+            subject = f"New high on {item['symbol']}: {item['price']}"
             msg = f"""
                     Ticker: {item['symbol']}.
                     Current price: {item['price']}.
